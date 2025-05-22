@@ -34,53 +34,55 @@ class SyncService {
     await db.saveNote(note);
     if (this.isOnline) {
       try {
-        note.syncStatus = 'syncing';
-        await db.saveNote(note);
-        const syncedNote = await api.createNote(note);
-        syncedNote.syncStatus = 'synced';
-        await db.saveNote(syncedNote);
+        const syncingNote = { ...note, syncStatus: 'syncing' as const };
+        await db.saveNote(syncingNote);
+        const syncedNote = await api.createNote(syncingNote);
+        const finalNote = { ...syncedNote, syncStatus: 'synced' as const };
+        await db.saveNote(finalNote);
+        return finalNote;
       } catch (error) {
-        note.syncStatus = 'error';
-        await db.saveNote(note);
-        this.syncQueue.push({ type: 'create', note });
+        const errorNote = { ...note, syncStatus: 'error' as const };
+        await db.saveNote(errorNote);
+        this.syncQueue.push({ type: 'create', note: errorNote });
+        return errorNote;
       }
     } else {
       this.syncQueue.push({ type: 'create', note });
+      return note;
     }
-
-    return note;
   }
 
   async updateNote(id: string, updates: Partial<Note>): Promise<Note> {
     const existingNote = await db.getNote(id);
     if (!existingNote) throw new Error('Note not found');
 
-    const updatedNote = {
+    const updatedNote: Note = {
       ...existingNote,
       ...updates,
       updatedAt: new Date().toISOString(),
       synced: false,
-      syncStatus: 'unsynced' as const,
+      syncStatus: 'unsynced',
     };
 
     await db.saveNote(updatedNote);
     if (this.isOnline) {
       try {
-        updatedNote.syncStatus = 'syncing';
-        await db.saveNote(updatedNote);
-        const syncedNote = await api.updateNote(id, updatedNote);
-        syncedNote.syncStatus = 'synced';
-        await db.saveNote(syncedNote);
+        const syncingNote = { ...updatedNote, syncStatus: 'syncing' as const };
+        await db.saveNote(syncingNote);
+        const syncedNote = await api.updateNote(id, syncingNote);
+        const finalNote = { ...syncedNote, syncStatus: 'synced' as const };
+        await db.saveNote(finalNote);
+        return finalNote;
       } catch (error) {
-        updatedNote.syncStatus = 'error';
-        await db.saveNote(updatedNote);
-        this.syncQueue.push({ type: 'update', note: updatedNote });
+        const errorNote = { ...updatedNote, syncStatus: 'error' as const };
+        await db.saveNote(errorNote);
+        this.syncQueue.push({ type: 'update', note: errorNote });
+        return errorNote;
       }
     } else {
       this.syncQueue.push({ type: 'update', note: updatedNote });
+      return updatedNote;
     }
-
-    return updatedNote;
   }
 
   async deleteNote(id: string): Promise<void> {
