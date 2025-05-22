@@ -1,0 +1,55 @@
+.note-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+}
+
+.note-title-input {
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  border: none;
+  border-bottom: 2px solid #ddd;
+  background: none;
+  color: #333;
+}
+
+.note-title-input:focus {
+  outline: none;
+  border-bottom-color: #007bff;
+}
+
+.markdown-editor {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.markdown-preview {
+  flex: 1;
+  padding: 1rem;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow-y: auto;
+}
+
+/* Override MDEditor styles */
+.w-md-editor {
+  box-shadow: none !important;
+}
+
+.w-md-editor-toolbar {
+  border-bottom: 1px solid #ddd !important;
+}
+
+.w-md-editor-content {
+  background-color: #ffffff !important;
+}
+
+.w-md-editor-text-pre > code,
+.w-md-editor-text-input {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace !important;
+  font-size: 14px !important;
+} 
